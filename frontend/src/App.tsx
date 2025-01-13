@@ -9,7 +9,8 @@ function App() {
     <>
       <BrowserRouter>
         <Routes>
-          <Route path='/' element={<h1>Home</h1>} />
+          <Route path='/' element={<RegisterPage />} />
+          <Route path='/home' element={<h1>Home</h1>} />
           <Route path='/*' element={<h1>Not Found</h1>} />
           <Route path='/auth/login' element={<LoginPage />} />
           <Route path='/auth/register' element={<RegisterPage />} />
