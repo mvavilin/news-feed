@@ -11,28 +11,43 @@ import {
 } from "@/components/ui/form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
-import { Input } from "../ui/input"
-import { Button } from "../ui/button"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
 import { z } from "zod"
 import { LoginSchema } from "@/schema"
 import { useState } from "react"
+import { useNavigate } from "react-router-dom"
+import axios from "axios"
 
 function LoginForm() {
   const [loading, setLoading] = useState(false)
+  const navigate = useNavigate()
 
   const form = useForm({
     resolver: zodResolver(LoginSchema),
     defaultValues: {
-      email: "",
-      password: "",
+      email: "test15@mail.com",
+      password: "password",
     }
   })
 
+
+  async function UserLogin(values: z.infer<typeof LoginSchema>) {
+    try {
+      const response = await axios.post("https://cpt-stage-2.duckdns.org/api/auth/login", values)
+      localStorage.setItem('accessToken', response.data.accessToken);
+      localStorage.setItem('refreshToken', response.data.refreshToken);
+      localStorage.setItem("email", values.email);
+      navigate("/home")
+    } catch (error) {
+      console.error("Ошибка входа:", error)
+    }
+  }
+
   function onSubmit(values: z.infer<typeof LoginSchema>) {
     setLoading(true)
-    // !
-    console.log(values)
-    // !
+
+    UserLogin(values)
   }
 
   return (

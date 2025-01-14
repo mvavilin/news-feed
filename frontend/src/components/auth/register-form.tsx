@@ -18,6 +18,8 @@ import { z } from "zod"
 import { useState } from "react"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
+import axios from "axios"
+import { useNavigate } from "react-router-dom"
 
 type FormFields = {
   email: string
@@ -28,25 +30,36 @@ type FormFields = {
 
 function RegisterForm() {
   const [loading, setLoading] = useState(false)
-  const [selectedValue, setSelectedValue] = useState("reader")
+  const [selectedValue, setSelectedValue] = useState("author")
+  const navigate = useNavigate()
 
   const form = useForm<FormFields>({
     resolver: zodResolver(RegisterSchema),
     defaultValues: {
-      email: "",
-      password: "",
-      confirmPassword: "",
-      role: "reader",
+      email: "test15@mail.com",
+      password: "password",
+      confirmPassword: "password",
+      role: "author",
     }
   })
+
+  async function UserRegister(values: z.infer<typeof RegisterSchema>) {
+    try {
+      const response = await axios.post("https://cpt-stage-2.duckdns.org/api/auth/register", values)
+      localStorage.setItem("accessToken", response.data.accessToken);
+      localStorage.setItem("refreshToken", response.data.refreshToken);
+      localStorage.setItem("email", values.email);
+      navigate("/home")
+    } catch (error) {
+      console.error("Ошибка регистрации:", error)
+    }
+  }
 
   function onSubmit(values: z.infer<typeof RegisterSchema>) {
     const [password, confirmPassword] = form.getValues(["password", "confirmPassword"])
     if (password === confirmPassword) {
       setLoading(true)
-      // !
-      console.log(values)
-      // !
+      UserRegister(values)
     } else {
       form.setError("password", {
         type: "manual",
