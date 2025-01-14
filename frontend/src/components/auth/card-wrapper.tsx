@@ -5,9 +5,9 @@ import {
   CardContent,
   CardHeader,
   CardFooter
-} from "@/components/ui/card";
-import AuthHeader from "./auth-header";
-import BackButton from "./back-button";
+} from "@/components/ui/card"
+import AuthHeader from "./auth-header"
+import BackButton from "./back-button"
 
 interface CardWrapperProps {
   title: string
@@ -19,7 +19,7 @@ interface CardWrapperProps {
 
 function CardWrapper({ title, backButtonHref, backButtonLabel, backButtonLink, children }: CardWrapperProps) {
   return (
-    <Card className="xl:w-1/3 md:w-1/2 shadow-md">
+    <Card className="xl:w-1/4 md:w-1/3 shadow-md">
       <CardHeader>
         <AuthHeader title={title} />
       </CardHeader>
