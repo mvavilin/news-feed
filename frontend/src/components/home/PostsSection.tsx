@@ -1,4 +1,3 @@
-import Posts from "@/components/home/Posts"
 import ControlPanel from "@/components/home/ControlPanel"
 
 function PostsSection() {
