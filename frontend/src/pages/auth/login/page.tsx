@@ -1,10 +1,6 @@
-import LoginForm from "@/components/auth/login-form"
-import AuthLayout from "@/pages/auth/layout"
+import LoginForm from "@/components/auth/LoginForm"
+import AuthLayout from "@/pages/auth/Layout"
 
-function LoginPage() {
-  return (
-    <AuthLayout children={<LoginForm />} />
-  )
-}
+function LoginPage() { return (<AuthLayout children={<LoginForm />} />) }
 
 export default LoginPage

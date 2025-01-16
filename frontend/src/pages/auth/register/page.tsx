@@ -1,10 +1,6 @@
-import RegisterForm from "@/components/auth/register-form"
-import AuthLayout from "@/pages/auth/layout"
+import RegisterForm from "@/components/auth/RegisterForm"
+import AuthLayout from "@/pages/auth/Layout"
 
-function RegisterPage() {
-  return (
-    <AuthLayout children={<RegisterForm />} />
-  )
-}
+function RegisterPage() { return (<AuthLayout children={<RegisterForm />} />) }
 
 export default RegisterPage

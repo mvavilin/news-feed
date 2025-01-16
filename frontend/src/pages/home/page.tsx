@@ -1,17 +1,15 @@
-import Header from "@/components/home/header"
-import Main from "@/components/home/main"
-import HomeLayout from "@/pages/home/layout"
+import Header from "@/components/home/Header"
+import Main from "@/components/home/Main"
+import HomeLayout from "@/pages/home/Layout"
 
 function HomePage() {
   return (
-    <HomeLayout
-      children={
-        <>
-          <Header />
-          <Main />
-        </>
-      }
-    />
+    <HomeLayout children={
+      <>
+        <Header />
+        <Main />
+      </>
+    } />
   )
 }
 
