@@ -23,16 +23,16 @@ function EditPost({ postId, postStatus }: IEditPostProps) {
   const status = postStatus
 
   // 
-  const [selectedImage, setSelectedImage] = useState<File | null>(null)
+  // const [selectedImage, setSelectedImage] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0] || null
     if (file) {
-      setSelectedImage(file)
+      // setSelectedImage(file)
       const previewUrl = URL.createObjectURL(file)
       setImagePreview(previewUrl)
     } else {
-      setSelectedImage(null)
+      // setSelectedImage(null)
       setImagePreview(null)
     }
   }
