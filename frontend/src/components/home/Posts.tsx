@@ -9,11 +9,13 @@ import EditPost from "@/components/home/EditPost"
 import { useNavigate } from "react-router-dom"
 import { LoaderCircle } from "lucide-react"
 
-interface IPostsProps { filterPosts: string }
+interface IPostsProps { role: string, filterPosts: string }
 
-function Posts({ filterPosts }: IPostsProps) {
+function Posts({ role, filterPosts }: IPostsProps) {
   const navigate = useNavigate()
   const { loading, error, posts } = usePosts()
+  console.log(posts);
+
 
   const [isModalActive, setIsModalActive] = useState(false)
   const [currentPostId, setCurrentPostId] = useState<number | null>(null)
@@ -32,36 +34,43 @@ function Posts({ filterPosts }: IPostsProps) {
   let filteredAndSortedPosts: IPost[]
   filteredAndSortedPosts = []
   const renderPosts = () => {
-    switch (filterPosts) {
-      case "all-posts":
-        filteredAndSortedPosts = posts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-        break
-      case "my-posts":
-        filteredAndSortedPosts = posts
-          .filter(post => post.status === "published")
-          .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-        break
-      case "drafts":
-        filteredAndSortedPosts = posts
-          .filter(post => post.status === "draft")
-          .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-        break
-
-      case "Reader":
-        break
+    if (role === "author") {
+      switch (filterPosts) {
+        case "all-posts":
+          filteredAndSortedPosts = posts
+            .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+          break
+        case "my-posts":
+          filteredAndSortedPosts = posts
+            .filter(post => post.status === "published")
+            .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+          break
+        case "drafts":
+          filteredAndSortedPosts = posts
+            .filter(post => post.status === "draft")
+            .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+          break
+      }
+    } else if (role === "reader") {
+      return filteredAndSortedPosts = posts
+        .filter(post => post.status === "published")
+        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     }
   }
 
   const renderPostButtons = (id: number, status: string) => {
-    switch (status) {
-      case "published":
-        return <Button onClick={() => openModal(id, status)} variant={"secondary"} >Редактировать</Button>
-      case "draft":
-        return <>
-          <Button onClick={() => sendToPublish(id)}>Опубликовать пост</Button>
-          <Button onClick={() => openModal(id, status)} variant={"secondary"}>Редактировать</Button>
-        </>
+    if (role === "reader") { return <></> }
+    if (role === "author") {
+      switch (status) {
+        case "published": return <Button onClick={() => openModal(id, status)} variant={"secondary"}>Редактировать</Button>
+        case "draft":
+          return <>
+            <Button onClick={() => sendToPublish(id)}>Опубликовать пост</Button>
+            <Button onClick={() => openModal(id, status)} variant={"secondary"}>Редактировать</Button>
+          </>
+      }
     }
+
   }
 
   async function sendToPublish(id: number) {
@@ -75,6 +84,7 @@ function Posts({ filterPosts }: IPostsProps) {
   }
 
   renderPosts()
+
   return (
     <>
       {loading && <div className="flex justify-center"><LoaderCircle size={48} className="animate-spin" /></div>}

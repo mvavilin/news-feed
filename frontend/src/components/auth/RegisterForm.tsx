@@ -17,12 +17,12 @@ type TFormFields = { email: string, password: string, confirmPassword: string, r
 
 function RegisterForm() {
   const [loading, setLoading] = useState(false)
-  const [selectedValue, setSelectedValue] = useState("author")
+  const [selectedValue, setSelectedValue] = useState("reader")
   const navigate = useNavigate()
 
   const form = useForm<TFormFields>({
     resolver: zodResolver(RegisterSchema),
-    defaultValues: { email: "", password: "", confirmPassword: "", role: "author" }
+    defaultValues: { email: "", password: "", confirmPassword: "", role: "reader" }
   })
 
   async function registerUser(values: z.infer<typeof RegisterSchema>) {

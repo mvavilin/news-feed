@@ -25,11 +25,14 @@ function LoginForm() {
       localStorage.setItem("accessToken", response.data.accessToken)
       localStorage.setItem("refreshToken", response.data.refreshToken)
       localStorage.setItem("email", values.email)
+      // 
       localStorage.setItem("role", "author")
+      // 
       navigate("/home")
     } catch (e: unknown) {
       const error = e as AxiosError
       console.error("Error sending data:", error.response?.data || error.message)
+      navigate(0)
     }
   }
 

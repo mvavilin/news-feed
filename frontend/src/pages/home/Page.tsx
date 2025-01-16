@@ -1,15 +1,23 @@
 import Header from "@/components/home/Header"
 import Main from "@/components/home/Main"
 import HomeLayout from "@/pages/home/Layout"
+import { Navigate } from "react-router-dom"
 
 function HomePage() {
   return (
-    <HomeLayout children={
-      <>
-        <Header />
-        <Main />
-      </>
-    } />
+    <>
+      {
+        ((localStorage.getItem("accessToken") === null) || (localStorage.getItem("refreshToken") === null))
+          ? <Navigate to="/auth/login" />
+          :
+          < HomeLayout children={
+            <>
+              <Header />
+              <Main />
+            </>
+          } />
+      }
+    </>
   )
 }
 

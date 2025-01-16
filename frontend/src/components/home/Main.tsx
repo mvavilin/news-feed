@@ -8,7 +8,7 @@ function Main() {
       <div className="w-4/5 h-screen flex justify-between gap-x-8">
         <SideBar />
         <PostsSection />
-        <div className="basis-52 rounded-md overflow-hidden"><img src={Adv} alt="Adv" /></div>
+        <div className="basis-52 rounded-md overflow-hidden flex-shrink-0 md:block hidden"><img src={Adv} alt="Adv" /></div>
       </div>
     </div>
   )
