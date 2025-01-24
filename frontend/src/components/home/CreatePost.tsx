@@ -12,8 +12,6 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { v4 as uuidv4 } from "uuid"
 import { useNavigate } from "react-router-dom"
-import { usePosts } from "@/hooks/usePosts"
-import { IPost } from "@/models"
 
 type TFormFields = { title: string, content: string, idempotencyKey: string }
 
@@ -21,16 +19,16 @@ function CreatePost() {
   const navigate = useNavigate()
 
   //
-  const [selectedImage, setSelectedImage] = useState<File | null>(null)
+  // const [selectedImage, setSelectedImage] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0] || null
     if (file) {
-      setSelectedImage(file);
+      // setSelectedImage(file);
       const previewUrl = URL.createObjectURL(file);
       setImagePreview(previewUrl)
     } else {
-      setSelectedImage(null)
+      // setSelectedImage(null)
       setImagePreview(null)
     }
   }
