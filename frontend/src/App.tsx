@@ -8,7 +8,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         {/*  */}
-        <Route path="/" element={<RegisterPage />} />
+        <Route path="/" element={<LoginPage />} />
         {/*  */}
         <Route path="/home" element={<HomePage />} />
         <Route path="/*" element={<h1>Not Found</h1>} />
