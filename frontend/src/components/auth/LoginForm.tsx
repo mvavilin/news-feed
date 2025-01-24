@@ -24,7 +24,6 @@ function LoginForm() {
       const response = await axios.post("https://cpt-stage-2.duckdns.org/api/auth/login", values)
       localStorage.setItem("accessToken", response.data.accessToken)
       localStorage.setItem("refreshToken", response.data.refreshToken)
-      localStorage.setItem("email", values.email)
       navigate("/home")
     } catch (e: unknown) {
       const error = e as AxiosError
