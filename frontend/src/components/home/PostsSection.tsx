@@ -1,11 +1,12 @@
 import ControlPanel from "@/components/home/ControlPanel"
+import { IUserInfo } from "@/models"
 
-function PostsSection() {
+interface IPostsSectionProps { userInfo: IUserInfo | null }
+
+function PostsSection({ userInfo }: IPostsSectionProps) {
   return (
     <section className="max-w-3xl flex-grow flex flex-col gap-y-6" >
-      {/*  */}
-      {localStorage.getItem("role") === "author" ? <ControlPanel role={"author"} /> : <ControlPanel role={"reader"} />}
-      {/*  */}
+      <ControlPanel userInfo={userInfo} />
     </section >
   )
 }

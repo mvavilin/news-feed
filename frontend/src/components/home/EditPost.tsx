@@ -7,40 +7,44 @@ import { Button } from "@/components/ui/button"
 import { z } from "zod"
 import { useState } from "react"
 import axios, { AxiosError } from "axios"
-import { Upload } from "lucide-react"
+import { Trash2, Upload } from "lucide-react"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { useNavigate } from "react-router-dom"
 
 type IFormFields = { title: string, content: string }
 
-interface IEditPostProps { postId: number | null, postStatus: string }
+interface IEditPostProps { postId: number | null, postStatus: string, postImages: [], postTitle: string, postContent: string }
+interface IImage { createdAt: string, id: number, imageUrl: string }
 
-function EditPost({ postId, postStatus }: IEditPostProps) {
+function EditPost({ postId, postStatus, postImages, postTitle, postContent }: IEditPostProps) {
   const navigate = useNavigate()
 
   const id = postId
   const status = postStatus
 
+  const images = postImages
+  const [countImages, setCountImages] = useState(images.length)
+
   // 
-  // const [selectedImage, setSelectedImage] = useState<File | null>(null)
+  const [selectedImage, setSelectedImage] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0] || null
     if (file) {
-      // setSelectedImage(file)
+      setSelectedImage(file)
       const previewUrl = URL.createObjectURL(file)
       setImagePreview(previewUrl)
     } else {
-      // setSelectedImage(null)
+      setSelectedImage(null)
       setImagePreview(null)
     }
   }
-  //
+  // 
 
   const form = useForm<IFormFields>({
     resolver: zodResolver(EditPostRequestSchema),
-    defaultValues: { title: "", content: "" }
+    defaultValues: { title: postTitle, content: postContent }
   })
 
   async function sendToPublish(values: z.infer<typeof EditPostRequestSchema>) {
@@ -71,13 +75,32 @@ function EditPost({ postId, postStatus }: IEditPostProps) {
     }
   }
 
+  const handleDelete = async (imageId: number, postId: number | null) => {
+    try {
+      await axios.delete(`https://cpt-stage-2.duckdns.org/api/posts/${postId}/images/${imageId}`, { headers: { "Authorization": `Bearer ${localStorage.getItem("accessToken")}` } })
+      setCountImages(0)
+    } catch (e: unknown) {
+      const error = e as AxiosError
+      console.error("Error sending data:", error.response?.data || error.message)
+    }
+  }
+
   const onSubmit = async (values: z.infer<typeof EditPostRequestSchema>, event: any) => {
     const action = event.nativeEvent.submitter.value
-    if (action === "publish") {
-      await sendToPublish(values)
-    } else if (action === "draft") {
-      await sendToDrafts(values)
+    if (action === "publish") { await sendToPublish(values) }
+    else if (action === "draft") { await sendToDrafts(values) }
+    // 
+    if (selectedImage !== null) {
+      try {
+        const formData = new FormData();
+        formData.append('image', selectedImage);
+        await axios.post(`https://cpt-stage-2.duckdns.org/api/posts/${id}/images`, formData, { headers: { "Authorization": `Bearer ${localStorage.getItem("accessToken")}`, "Content-Type": "multipart/form-data" } })
+      } catch (e: unknown) {
+        const error = e as AxiosError
+        console.error("Error sending data:", error.response?.data || error.message)
+      }
     }
+    // 
     navigate(0)
   }
 
@@ -100,7 +123,21 @@ function EditPost({ postId, postStatus }: IEditPostProps) {
           <FormItem>
             <Label className="relative">
               <Input type="file" accept="image/*" onChange={handleImageChange} className="absolute inset-0 opacity-0 cursor-pointer" />
-              {!imagePreview && <Button type="button" className="flex gap-2.5"><Upload />Добавить картинку</Button>}
+
+              {
+                countImages !== 0
+                  ?
+                  <div className="flex flex-col gap-y-4">
+                    {
+                      images.map((image: IImage) => <div key={image.id} className="relative">
+                        <button type="button" className="block absolute right-4 top-4 p-2 rounded-lg bg-slate-50" onClick={() => handleDelete(image.id, id)}><Trash2 /></button>
+                        <img className="overflow-hidden rounded-sm" src={image.imageUrl} alt="[images]" />
+                      </div>)
+                    }
+                  </div>
+                  :
+                  <>{!imagePreview && <Button type="button" className="flex gap-2.5"><Upload />Добавить картинку</Button>}</>
+              }
               {imagePreview && <div className="w-full rounded-sm overflow-hidden"><img src={imagePreview} alt="Предварительный просмотр" /></div>}
             </Label>
             <FormMessage />
@@ -125,7 +162,7 @@ function EditPost({ postId, postStatus }: IEditPostProps) {
         </div>
 
       </form>
-    </Form>
+    </Form >
   )
 }
 

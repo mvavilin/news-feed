@@ -1,12 +1,16 @@
-import { IPost } from "@/models"
+import { IPost, IUserInfo } from "@/models"
 import { Heart, MessageCircle, Smile } from "lucide-react"
 import { format } from "date-fns"
 import { ru } from "date-fns/locale"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
-interface IPostProps { children: React.ReactNode, post: IPost }
+interface IPostProps { children: React.ReactNode, post: IPost, userInfo: IUserInfo | null }
+interface IImage { createdAt: string, id: number, imageUrl: string }
 
-function Post({ post, children }: IPostProps) {
+function Post({ post, children, userInfo }: IPostProps) {
+  const userInfoId = userInfo?.id
+  const userInfoEmail = userInfo?.email
+
   const formatDate = (date: string) => { return format(new Date(date), "d MMMM", { locale: ru }) }
 
   return (
@@ -17,7 +21,7 @@ function Post({ post, children }: IPostProps) {
           <AvatarFallback><Smile size={16} /></AvatarFallback>
         </Avatar>
         <div className="flex flex-col items-start">
-          <div>{localStorage.getItem("email")}</div>
+          <div>{post.authorId === userInfoId ? userInfoEmail : `id${post.authorId}`}</div>
           <div className="text-xs text-slate-400">{formatDate(post.createdAt)}</div>
         </div>
       </div>
@@ -25,14 +29,18 @@ function Post({ post, children }: IPostProps) {
       <h2 className="font-semibold text-xl">{post.title}</h2>
 
       {/*  */}
-      {/* <div
-        className="overflow-hidden rounded-sm"
-      >
-        <img src="" alt="[images]" />
-      </div> */}
+      {
+        post.images.length > 0
+          ?
+          <div className="flex flex-col gap-y-4">
+            {post.images.map((image: IImage) => <img key={image.id} className="overflow-hidden rounded-sm" src={image.imageUrl} alt="[images]" />)}
+          </div>
+          :
+          <></>
+      }
       {/*  */}
 
-      <p>{post.content}</p>
+      <p className="text-justify">{post.content}</p>
 
       <div className="flex gap-x-2">{children}</div>
 

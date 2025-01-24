@@ -25,9 +25,6 @@ function LoginForm() {
       localStorage.setItem("accessToken", response.data.accessToken)
       localStorage.setItem("refreshToken", response.data.refreshToken)
       localStorage.setItem("email", values.email)
-      // 
-      localStorage.setItem("role", "author")
-      // 
       navigate("/home")
     } catch (e: unknown) {
       const error = e as AxiosError

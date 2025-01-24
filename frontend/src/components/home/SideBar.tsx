@@ -17,13 +17,13 @@ function SideBar() {
   }
 
   return (
-    <aside className="basis-52 h-5/6 pb-20 flex flex-col justify-between flex-shrink-0">
+    <div className="fixed h-5/6 pb-20 flex flex-col justify-between flex-shrink-0">
       <SideMenu />
       <Button variant={"link"} className="w-full flex gap-2.5 justify-start rounded-md px-4 py-2 font-normal text-slate-400 cursor-pointer hover:bg-slate-100 hover:text-inherit hover:font-medium hover:no-underline duration-150" onClick={Exit}>
         <LogOut />
         Выйти
       </Button>
-    </aside >
+    </div>
   )
 }
 
