@@ -1,4 +1,4 @@
-import { IImage, IPost, IPostProps, IUserInfo } from "@/models"
+import { IImage, IPostProps } from "@/models"
 import { Heart, MessageCircle, Smile } from "lucide-react"
 import { format } from "date-fns"
 import { ru } from "date-fns/locale"
