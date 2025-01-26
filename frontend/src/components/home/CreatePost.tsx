@@ -77,7 +77,7 @@ function CreatePost() {
           />
         </div>
 
-        <div className="flex gap-x-2">
+        <div className="flex flex-wrap gap-2">
           <Button type="submit" name="action" value="publish-post">Опубликовать пост</Button>
           <Button type="submit" name="action" value="send-to-drafts" variant={"secondary"}>Отправить в черновики</Button>
         </div>
