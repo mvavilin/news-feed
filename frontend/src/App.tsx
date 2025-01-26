@@ -12,8 +12,8 @@ function App() {
         {/*  */}
         <Route path="/home" element={<HomePage />} />
         <Route path="/*" element={<h1>Not Found</h1>} />
-        <Route path="/auth/login" element={<LoginPage />} />
-        <Route path="/auth/register" element={<RegisterPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
       </Routes>
     </BrowserRouter>
   )

@@ -3,6 +3,15 @@ import { AddNewPostRequestSchema, EditPostRequestSchema, LoginUserRequestSchema,
 import axios, { AxiosError } from "axios"
 import { z } from "zod"
 
+export async function updateRefreshToken(refreshToken: string) {
+  try {
+    return await axios.post(`https://cpt-stage-2.duckdns.org/api/auth/refresh-token?refreshToken=${refreshToken}`, { headers: { "Authorization": `Bearer ${localStorage.getItem("accessToken")}` } })
+  } catch (e: unknown) {
+    const error = e as AxiosError<IErrorResponse>
+    console.error("Error sending data:", error.response?.data || error.message)
+  }
+}
+
 export async function registerUser(values: z.infer<typeof RegisterUserRequestSchema>) {
   try {
     return await axios.post("https://cpt-stage-2.duckdns.org/api/auth/register", values)

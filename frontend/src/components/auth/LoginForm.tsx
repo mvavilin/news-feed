@@ -29,7 +29,7 @@ function LoginForm() {
   }
 
   return (
-    <CardWrapper title="Войти" backButtonHref="/auth/register" backButtonLabel="Нет аккаунта?" backButtonLink="Создать аккаунт">
+    <CardWrapper title="Войти" backButtonHref="/register" backButtonLabel="Нет аккаунта?" backButtonLink="Создать аккаунт">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <div className="space-y-4">

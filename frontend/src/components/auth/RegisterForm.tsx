@@ -40,7 +40,7 @@ function RegisterForm() {
   }
 
   return (
-    <CardWrapper title="Создать аккаунт" backButtonHref="/auth/login" backButtonLabel="Уже есть аккаунт?" backButtonLink="Войти">
+    <CardWrapper title="Создать аккаунт" backButtonHref="/login" backButtonLabel="Уже есть аккаунт?" backButtonLink="Войти">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-4">
