@@ -8,7 +8,7 @@ function ExitButton() {
   function Exit() {
     localStorage.removeItem("accessToken")
     localStorage.removeItem("refreshToken")
-    navigate("/auth/login")
+    navigate("/login")
   }
 
   return (
