@@ -1,5 +1,5 @@
 import { IImage, IPostProps } from "@/models"
-import { Heart, MessageCircle, Smile } from "lucide-react"
+import { Heart, MessageCircle, User } from "lucide-react"
 import { format } from "date-fns"
 import { ru } from "date-fns/locale"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -12,7 +12,7 @@ function Post({ userInfo, post, children }: IPostProps) {
       <div className="flex gap-x-2 text-slate-900">
         <Avatar>
           <AvatarImage src="https://github.com/shadcn.png" />
-          <AvatarFallback><Smile size={16} /></AvatarFallback>
+          <AvatarFallback><User /></AvatarFallback>
         </Avatar>
         <div className="flex flex-col items-start">
           <div>{post.authorId === userInfo.id ? userInfo.email : `id${post.authorId}`}</div>
