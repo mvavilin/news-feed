@@ -1,13 +1,16 @@
-import { Smile } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { IUserInfo } from "@/models"
+import { User } from "lucide-react"
 
-function ProfileSection() {
+function ProfileSection({ userInfo }: { userInfo: IUserInfo }) {
   return (
     <div className="flex items-center gap-x-3 text-slate-900">
-      <div>{localStorage.getItem("email")}</div>
+      <div>
+        {userInfo.email}
+      </div>
       <Avatar>
         <AvatarImage src="https://github.com/shadcn.png" />
-        <AvatarFallback><Smile size={16} /></AvatarFallback>
+        <AvatarFallback><User /></AvatarFallback>
       </Avatar>
     </div>
   )

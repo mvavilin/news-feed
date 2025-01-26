@@ -6,101 +6,44 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { z } from "zod"
 import { useState } from "react"
-import axios, { AxiosError } from "axios"
 import { Trash2, Upload } from "lucide-react"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { useNavigate } from "react-router-dom"
+import { IImage, IPost } from "@/models"
+import { changePostStatus, deleteImage, publishEditPost, sendImage } from "@/api/postService"
+import { TEditFormFields } from "@/types"
 
-type IFormFields = { title: string, content: string }
-
-interface IEditPostProps { postId: number | null, postStatus: string, postImages: [], postTitle: string, postContent: string }
-interface IImage { createdAt: string, id: number, imageUrl: string }
-
-function EditPost({ postId, postStatus, postImages, postTitle, postContent }: IEditPostProps) {
+function EditPost({ post }: { post: IPost }) {
   const navigate = useNavigate()
 
-  const id = postId
-  const status = postStatus
-
-  const images = postImages
-  const [countImages, setCountImages] = useState(images.length)
-
-  // 
+  const [countImages, setCountImages] = useState(post.images.length)
   const [selectedImage, setSelectedImage] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
+
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0] || null
-    if (file) {
-      setSelectedImage(file)
-      const previewUrl = URL.createObjectURL(file)
-      setImagePreview(previewUrl)
-    } else {
-      setSelectedImage(null)
-      setImagePreview(null)
-    }
+    if (file) { setSelectedImage(file); const previewUrl = URL.createObjectURL(file); setImagePreview(previewUrl) }
+    else { setSelectedImage(null); setImagePreview(null) }
   }
-  // 
 
-  const form = useForm<IFormFields>({
+  const form = useForm<TEditFormFields>({
     resolver: zodResolver(EditPostRequestSchema),
-    defaultValues: { title: postTitle, content: postContent }
+    defaultValues: { title: post.title, content: post.content }
   })
-
-  async function sendToPublish(values: z.infer<typeof EditPostRequestSchema>) {
-    try {
-      if (status === "published") {
-        await axios.put(`https://cpt-stage-2.duckdns.org/api/posts/${id}`, values, { headers: { "Authorization": `Bearer ${localStorage.getItem("accessToken")}` } })
-      } else if (status === "draft") {
-        await axios.put(`https://cpt-stage-2.duckdns.org/api/posts/${id}`, values, { headers: { "Authorization": `Bearer ${localStorage.getItem("accessToken")}` } })
-        await axios.patch(`https://cpt-stage-2.duckdns.org/api/posts/${id}/status`, { status: "published" }, { headers: { "Authorization": `Bearer ${localStorage.getItem("accessToken")}`, "Content-Type": "application/json" } })
-      }
-    } catch (e: unknown) {
-      const error = e as AxiosError
-      console.error("Error sending data:", error.response?.data || error.message)
-    }
-  }
-
-  async function sendToDrafts(values: z.infer<typeof EditPostRequestSchema>) {
-    try {
-      if (status === "published") {
-        await axios.put(`https://cpt-stage-2.duckdns.org/api/posts/${id}`, values, { headers: { "Authorization": `Bearer ${localStorage.getItem("accessToken")}` } })
-        // await axios.patch(`https://cpt-stage-2.duckdns.org/api/posts/${id}/status`, { status: "draft" }, { headers: { "Authorization": `Bearer ${localStorage.getItem("accessToken")}`, "Content-Type": "application/json" } })
-      } else if (status === "draft") {
-        await axios.put(`https://cpt-stage-2.duckdns.org/api/posts/${id}`, values, { headers: { "Authorization": `Bearer ${localStorage.getItem("accessToken")}` } })
-      }
-    } catch (e: unknown) {
-      const error = e as AxiosError
-      console.error("Error sending data:", error.response?.data || error.message)
-    }
-  }
-
-  const handleDelete = async (imageId: number, postId: number | null) => {
-    try {
-      await axios.delete(`https://cpt-stage-2.duckdns.org/api/posts/${postId}/images/${imageId}`, { headers: { "Authorization": `Bearer ${localStorage.getItem("accessToken")}` } })
-      setCountImages(0)
-    } catch (e: unknown) {
-      const error = e as AxiosError
-      console.error("Error sending data:", error.response?.data || error.message)
-    }
-  }
 
   const onSubmit = async (values: z.infer<typeof EditPostRequestSchema>, event: any) => {
     const action = event.nativeEvent.submitter.value
-    if (action === "publish") { await sendToPublish(values) }
-    else if (action === "draft") { await sendToDrafts(values) }
-    // 
-    if (selectedImage !== null) {
-      try {
-        const formData = new FormData();
-        formData.append('image', selectedImage);
-        await axios.post(`https://cpt-stage-2.duckdns.org/api/posts/${id}/images`, formData, { headers: { "Authorization": `Bearer ${localStorage.getItem("accessToken")}`, "Content-Type": "multipart/form-data" } })
-      } catch (e: unknown) {
-        const error = e as AxiosError
-        console.error("Error sending data:", error.response?.data || error.message)
-      }
+    switch (action) {
+      case "publish-post":
+        await publishEditPost(values, post);
+        if (post.status === "draft") await changePostStatus(post.id)
+        break
+      case "send-to-drafts":
+        await publishEditPost(values, post)
+        break
     }
-    // 
+    if (selectedImage !== null) { await sendImage(post.id, selectedImage) }
     navigate(0)
   }
 
@@ -118,32 +61,28 @@ function EditPost({ postId, postStatus, postImages, postTitle, postContent }: IE
             </FormItem>
           )}
           />
-
           {/*  */}
           <FormItem>
             <Label className="relative">
               <Input type="file" accept="image/*" onChange={handleImageChange} className="absolute inset-0 opacity-0 cursor-pointer" />
-
               {
                 countImages !== 0
                   ?
                   <div className="flex flex-col gap-y-4">
-                    {
-                      images.map((image: IImage) => <div key={image.id} className="relative">
-                        <button type="button" className="block absolute right-4 top-4 p-2 rounded-lg bg-slate-50" onClick={() => handleDelete(image.id, id)}><Trash2 /></button>
+                    {post.images.map((image: IImage) => (
+                      <div key={image.id} className="relative">
+                        <button type="button" className="block absolute right-4 top-4 p-2 rounded-lg bg-slate-50" onClick={() => { deleteImage(post.id, image.id), setCountImages(0) }}><Trash2 /></button>
                         <img className="overflow-hidden rounded-sm" src={image.imageUrl} alt="[images]" />
-                      </div>)
-                    }
+                      </div>
+                    ))}
                   </div>
-                  :
-                  <>{!imagePreview && <Button type="button" className="flex gap-2.5"><Upload />Добавить картинку</Button>}</>
+                  : <>{!imagePreview && <Button type="button" className="flex gap-2.5"><Upload />Добавить картинку</Button>}</>
               }
               {imagePreview && <div className="w-full rounded-sm overflow-hidden"><img src={imagePreview} alt="Предварительный просмотр" /></div>}
             </Label>
             <FormMessage />
           </FormItem>
           {/*  */}
-
           <FormField control={form.control} name="content" render={({ field }) => (
             <FormItem>
               <FormLabel>Контент</FormLabel>
@@ -156,9 +95,9 @@ function EditPost({ postId, postStatus, postImages, postTitle, postContent }: IE
           />
         </div>
 
-        <div className="flex gap-x-2">
-          <Button type="submit" name="action" value="publish">Опубликовать пост</Button>
-          {status === "published" ? <></> : <Button type="submit" name="action" value="draft" variant={"secondary"}>Отправить в черновики</Button>}
+        <div className="flex flex-wrap gap-2">
+          <Button type="submit" name="action" value="publish-post">Опубликовать пост</Button>
+          {post.status === "published" ? <></> : <Button type="submit" name="action" value="send-to-drafts" variant={"secondary"}>Отправить в черновики</Button>}
         </div>
 
       </form>

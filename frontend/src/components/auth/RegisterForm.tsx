@@ -1,7 +1,7 @@
 import CardWrapper from "@/components/auth/CardWrapper"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { RegisterSchema } from "@/schema"
+import { RegisterUserRequestSchema } from "@/schema"
 import { useForm } from "react-hook-form"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -9,44 +9,34 @@ import { z } from "zod"
 import { useState } from "react"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
-import axios, { AxiosError } from "axios"
 import { useNavigate } from "react-router-dom"
 import { LoaderCircle } from "lucide-react"
-
-type TFormFields = { email: string, password: string, confirmPassword: string, role: "reader" | "author" }
+import { registerUser } from "@/api/postService"
+import { TRegisterFormFields } from "@/types"
 
 function RegisterForm() {
-  const [loading, setLoading] = useState(false)
-  const [selectedValue, setSelectedValue] = useState("reader")
   const navigate = useNavigate()
+  const [loading, setLoading] = useState(false)
+  const [selectedValue, setSelectedValue] = useState("Reader")
 
-  const form = useForm<TFormFields>({
-    resolver: zodResolver(RegisterSchema),
-    defaultValues: { email: "", password: "", confirmPassword: "", role: "reader" }
+  const form = useForm<TRegisterFormFields>({
+    resolver: zodResolver(RegisterUserRequestSchema),
+    defaultValues: { email: "", password: "", confirmPassword: "", role: "Reader" }
   })
 
-  async function registerUser(values: z.infer<typeof RegisterSchema>) {
-    try {
-      const response = await axios.post("https://cpt-stage-2.duckdns.org/api/auth/register", values)
-      localStorage.setItem("accessToken", response.data.accessToken)
-      localStorage.setItem("refreshToken", response.data.refreshToken)
-      localStorage.setItem("email", values.email)
-      navigate("/home")
-    } catch (e: unknown) {
-      const error = e as AxiosError
-      console.error("Error sending data:", error.response?.data || error.message)
-    }
-  }
-
-  function onSubmit(values: z.infer<typeof RegisterSchema>) {
+  const onSubmit = async (values: z.infer<typeof RegisterUserRequestSchema>) => {
+    setLoading(true)
     const [password, confirmPassword] = form.getValues(["password", "confirmPassword"])
     if (password === confirmPassword) {
-      setLoading(true)
-      registerUser(values)
+      const response = await registerUser(values)
+      localStorage.setItem("accessToken", response?.data.accessToken)
+      localStorage.setItem("refreshToken", response?.data.refreshToken)
+      if (response) navigate("/home")
     } else {
       form.setError("password", { type: "manual", message: "Пароли не совпадают" })
       form.setError("confirmPassword", { type: "manual", message: "Пароли не совпадают" })
     }
+    setLoading(false)
   }
 
   return (
@@ -91,13 +81,13 @@ function RegisterForm() {
                   <RadioGroup className="flex" defaultValue={field.value} value={selectedValue} onValueChange={(value) => { setSelectedValue(value); field.onChange(value) }}>
                     <div className="inline-flex bg-slate-100 p-1  rounded-md">
                       {/* ! */}
-                      <div className={`flex items-center rounded-md px-3 py-2 ${selectedValue === "reader" ? "bg-white text-slate-900" : "iniherit  text-slate-700"}`}>
-                        <RadioGroupItem value="reader" id="reader" />
-                        <Label htmlFor="reader">Читатель</Label>
+                      <div className={`flex items-center rounded-md px-3 py-2 ${selectedValue === "Reader" ? "bg-white text-slate-900" : "iniherit  text-slate-700"}`}>
+                        <RadioGroupItem value="Reader" id="Reader" />
+                        <Label htmlFor="Reader">Читатель</Label>
                       </div>
-                      <div className={`flex items-center rounded-md px-3 py-2 ${selectedValue === "author" ? "bg-white text-slate-900" : "iniherit  text-slate-700"}`}>
-                        <RadioGroupItem value="author" id="author" />
-                        <Label htmlFor="author">Автор</Label>
+                      <div className={`flex items-center rounded-md px-3 py-2 ${selectedValue === "Author" ? "bg-white text-slate-900" : "iniherit  text-slate-700"}`}>
+                        <RadioGroupItem value="Author" id="Author" />
+                        <Label htmlFor="Author">Автор</Label>
                       </div>
                       {/* ! */}
                     </div>

@@ -5,34 +5,28 @@ import { useForm } from "react-hook-form"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { z } from "zod"
-import { LoginSchema } from "@/schema"
+import { LoginUserRequestSchema } from "@/schema"
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
-import axios, { AxiosError } from "axios"
+import { loginUser } from "@/api/postService"
 import { LoaderCircle } from "lucide-react"
 
 function LoginForm() {
-  const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
+  const [loading, setLoading] = useState(false)
   const form = useForm({
-    resolver: zodResolver(LoginSchema),
+    resolver: zodResolver(LoginUserRequestSchema),
     defaultValues: { email: "", password: "" }
   })
 
-  async function loginUser(values: z.infer<typeof LoginSchema>) {
-    try {
-      const response = await axios.post("https://cpt-stage-2.duckdns.org/api/auth/login", values)
-      localStorage.setItem("accessToken", response.data.accessToken)
-      localStorage.setItem("refreshToken", response.data.refreshToken)
-      navigate("/home")
-    } catch (e: unknown) {
-      const error = e as AxiosError
-      console.error("Error sending data:", error.response?.data || error.message)
-      navigate(0)
-    }
+  const onSubmit = async (values: z.infer<typeof LoginUserRequestSchema>) => {
+    setLoading(true)
+    const response = await loginUser(values)
+    localStorage.setItem("accessToken", response?.data.accessToken)
+    localStorage.setItem("refreshToken", response?.data.refreshToken)
+    if (response) navigate("/home")
+    setLoading(false)
   }
-
-  function onSubmit(values: z.infer<typeof LoginSchema>) { setLoading(true); loginUser(values) }
 
   return (
     <CardWrapper title="Войти" backButtonHref="/auth/register" backButtonLabel="Нет аккаунта?" backButtonLink="Создать аккаунт">
